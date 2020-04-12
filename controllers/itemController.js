@@ -4,8 +4,9 @@ let router = express.Router();
 let ObjectId = require('mongoose').Types.ObjectId;
 // Для обработки медиа файлов
 const multer = require('multer');
+const jwtHelper = require('../config/jwtHelper');
 
-// Настройки - куда отправится и имя файла
+// Настройки - куда отправится фаил
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
         callback(null, './uploads/');
@@ -39,8 +40,8 @@ let {Item} = require('../models/item.model');
 // -> localhost:3000/employees/ <- это описано в index.js. если изменить get параметр ниже на /bla, то рут получится
 // localhost:3000/employees/bla
 
-router.get('/', (req, response) => {
-    Item.find((err, docs) => {
+router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
+    Item.find({'userId': req._id}, (err, docs) => {
         if (!err) {
             response.send(docs);
         } else {
@@ -63,11 +64,12 @@ router.get('/:id', (req, response) => {
     });
 });
 
-router.post('/', upload.single('itemPhoto'), (req, response) => {
-    console.log(req.file);
+router.post('/', upload.single('photo'), jwtHelper.verifyJwtToken, (req, response) => {
+    console.log(req._id);
     let itm = new Item({
         title: req.body.title,
-        photo: req.file.path
+        photo: req.file.path,
+        userId: req._id
     });
 
     itm.save((err, docs) => {
