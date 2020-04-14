@@ -98,9 +98,12 @@ router.get('/:id', (req, response) => {
 
 router.post('/', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {
     console.log(req.body);
+
     let itm = new Item({
         title: req.body.title,
         photo: req.body.photo,
+        type:  req.body.type,
+        weather: req.body.weather,
         userId: req._id
     });
 

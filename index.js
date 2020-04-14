@@ -15,7 +15,8 @@ var userController = require('./controllers/userController');
 var app = express();
 // первый аргумент - чтоб сохранить /uploads в URL, второй - все внутри сделать доступным по ссылке (картинки)
 app.use('/uploads', express.static('uploads'));
-app.use(bodyParser.json());
+// added Limit, because base64 image had problems
+app.use(bodyParser.json({limit: '20mb'}));
 //Для решения проблемы Cross-Origin
 app.use(cors({origin: 'http://localhost:4200'}));
 app.use(passport.initialize());

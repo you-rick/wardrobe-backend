@@ -2,8 +2,10 @@ const mongoose = require('mongoose');
 
 
 let ItemSchema = new mongoose.Schema({
-    title: {type: String},
-    photo: {type: String},
+    title:  {type: String},
+    photo:  {type: String},
+    type:   {type: String},
+    weather:{type: String},
     userId: {type: String}
 });
 
