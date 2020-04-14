@@ -4,6 +4,10 @@ let router = express.Router();
 let ObjectId = require('mongoose').Types.ObjectId;
 // Для обработки медиа файлов
 const multer = require('multer');
+// file manager
+const fs = require('fs');
+// MIME type
+const mime = require('mime');
 const jwtHelper = require('../config/jwtHelper');
 
 // Настройки - куда отправится фаил
@@ -33,6 +37,34 @@ const upload = multer({
     limits: {fileSize: 1024 * 1024 * 2}
 
 });
+
+// Обработка base64 картинки
+const uploadImage = (req, res, next) => {
+// to declare some path to store your converted image
+    //console.log(req.body);
+    let matches = req.body.photo.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+        response = {};
+
+    if (matches.length !== 3) {
+        return new Error('Invalid input string');
+    }
+
+    response.type = matches[1];
+    response.data = Buffer.from(matches[2], 'base64');
+    let decodedImg = response;
+    let imageBuffer = decodedImg.data;
+    let type = decodedImg.type;
+    let extension = mime.getExtension(type);
+    let fileName = new Date().toISOString() + req._id + "image." + extension;
+    try {
+        fs.writeFileSync("./uploads/" + fileName, imageBuffer, 'utf8');
+
+    } catch (e) {
+        next(e);
+    }
+    req.body.photo = 'uploads/' + fileName;
+    next();
+}
 
 let {Item} = require('../models/item.model');
 
@@ -64,11 +96,11 @@ router.get('/:id', (req, response) => {
     });
 });
 
-router.post('/', upload.single('photo'), jwtHelper.verifyJwtToken, (req, response) => {
-    console.log(req._id);
+router.post('/', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {
+    console.log(req.body);
     let itm = new Item({
         title: req.body.title,
-        photo: req.file.path,
+        photo: req.body.photo,
         userId: req._id
     });
 
@@ -80,7 +112,6 @@ router.post('/', upload.single('photo'), jwtHelper.verifyJwtToken, (req, respons
         }
     });
 });
-
 
 router.put('/:id', (req, response) => {  // /:id <- это то, к чему можно будет стучаться через req.params.id
     if (!ObjectId.isValid(req.params.id)) {
@@ -101,7 +132,6 @@ router.put('/:id', (req, response) => {  // /:id <- это то, к чему м�
         }
     });
 });
-
 
 router.delete('/:id', (req, response) => {
     if (!ObjectId.isValid(req.params.id)) {
