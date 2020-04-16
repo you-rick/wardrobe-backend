@@ -102,7 +102,7 @@ router.post('/', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {
     let itm = new Item({
         title: req.body.title,
         photo: req.body.photo,
-        type:  req.body.type,
+        type: req.body.type,
         weather: req.body.weather,
         userId: req._id
     });
@@ -116,19 +116,27 @@ router.post('/', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {
     });
 });
 
-router.put('/:id', (req, response) => {  // /:id <- это то, к чему можно будет стучаться через req.params.id
+router.put('/:id', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {  // /:id <- это то, к чему можно будет стучаться через req.params.id
     if (!ObjectId.isValid(req.params.id)) {
         return response.status(400).send(`No record with given id: ${req.params.id}`);
     }
 
     let itm = {
         title: req.body.title,
-        photo: req.file.path
+        photo: req.body.photo,
+        type: req.body.type,
+        weather: req.body.weather,
+        userId: req._id
     };
 
     // {new: true} -
-    Item.findByIdAndUpdate(req.params.id, {$set: itm}, {new: true, useFindAndModify: false}, (err, doc) => {
+    Item.findByIdAndUpdate(req.params.id, {$set: itm}, {new: false, useFindAndModify: false}, (err, doc) => {
         if (!err) {
+            fs.unlink("./" + doc.photo, function (err) {
+                if (err) throw err;
+                // if no error, file has been deleted successfully
+                console.log('File deleted!');
+            });
             response.send(doc);
         } else {
             console.log("Fuck! Error in Item PUT :" + JSON.stringify(err, undefined, 2));
