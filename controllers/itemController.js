@@ -151,6 +151,11 @@ router.delete('/:id', (req, response) => {
 
     Item.findByIdAndRemove(req.params.id, {useFindAndModify: false}, (err, doc) => {
         if (!err) {
+            fs.unlink("./" + doc.photo, function (err) {
+                if (err) throw err;
+                // if no error, file has been deleted successfully
+                console.log('File deleted!');
+            });
             response.send(doc);
         } else {
             console.log("Fuck! Error in Item DELETE :" + JSON.stringify(err, undefined, 2));
