@@ -69,8 +69,6 @@ const uploadImage = (req, res, next) => {
 let {Item} = require('../models/item.model');
 
 
-// -> localhost:3000/employees/ <- это описано в index.js. если изменить get параметр ниже на /bla, то рут получится
-// localhost:3000/employees/bla
 
 router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
     Item.find({'userId': req._id}, (err, docs) => {
@@ -81,6 +79,19 @@ router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
         }
     });
 });
+
+
+router.get('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
+    console.log("HERE!");
+    Item.find({'washing': true}, (err, docs) => {
+        if (!err) {
+            response.send(docs);
+        } else {
+            console.log("Fuck! Error in Retrieving Laundry :" + JSON.stringify(err, undefined, 2));
+        }
+    });
+});
+
 
 router.get('/:id', (req, response) => {
     if (!ObjectId.isValid(req.params.id)) {
@@ -96,6 +107,7 @@ router.get('/:id', (req, response) => {
     });
 });
 
+
 router.post('/', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {
     console.log(req.body);
 
@@ -104,6 +116,7 @@ router.post('/', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {
         photo: req.body.photo,
         type: req.body.type,
         weather: req.body.weather,
+        washing: req.body.washing,
         userId: req._id
     });
 
@@ -126,6 +139,7 @@ router.put('/:id', jwtHelper.verifyJwtToken, uploadImage, (req, response) => {  
         photo: req.body.photo,
         type: req.body.type,
         weather: req.body.weather,
+        washing: req.body.washing,
         userId: req._id
     };
 
