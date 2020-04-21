@@ -4,30 +4,44 @@ let router = express.Router();
 let ObjectId = require('mongoose').Types.ObjectId;
 // file manager
 const fs = require('fs');
-// MIME type
-const mime = require('mime');
+
 const jwtHelper = require('../config/jwtHelper');
 const uploadHelper = require('../config/imageUpload');
-
 
 
 let {Item} = require('../models/item.model');
 
 
-
 router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
-    Item.find({'userId': req._id}, (err, docs) => {
-        if (!err) {
-            response.send(docs);
-        } else {
-            console.log("Fuck! Error in Retrieving Items :" + JSON.stringify(err, undefined, 2));
-        }
-    });
+    // Get just list of items, if ids param provided
+    if (req.query.ids) {
+
+        let ids = req.query.ids;
+        let obj_ids = ids.split(',');
+
+        Item.find({_id: {$in: obj_ids}}, (err, docs) => {
+            if (!err) {
+                response.send(docs);
+            } else {
+                console.log("Fuck! Error in Retrieving Items by ID :" + JSON.stringify(err, undefined, 2));
+            }
+        });
+    }
+    // Send all items
+    else {
+        Item.find({'userId': req._id}, (err, docs) => {
+            if (!err) {
+                response.send(docs);
+            } else {
+                console.log("Fuck! Error in Retrieving Items :" + JSON.stringify(err, undefined, 2));
+            }
+        });
+    }
+
 });
 
 
 router.get('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
-    console.log("HERE!");
     Item.find({'washing': true}, (err, docs) => {
         if (!err) {
             response.send(docs);
@@ -57,7 +71,7 @@ router.post('/', jwtHelper.verifyJwtToken, uploadHelper.uploadImage, (req, respo
 
     let itm = new Item({
         title: req.body.title,
-        photo: req.body.photo,
+        photo: req.body.photo || "",
         type: req.body.type,
         weather: req.body.weather,
         washing: req.body.washing,
@@ -80,7 +94,7 @@ router.put('/:id', jwtHelper.verifyJwtToken, uploadHelper.uploadImage, (req, res
 
     let itm = {
         title: req.body.title,
-        photo: req.body.photo,
+        photo: req.body.photo || "",
         type: req.body.type,
         weather: req.body.weather,
         washing: req.body.washing,

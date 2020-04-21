@@ -1,5 +1,8 @@
 // Для обработки медиа файлов
 const multer = require('multer');
+const fs = require('fs');
+// MIME type
+const mime = require('mime');
 
 // Настройки - куда отправится фаил
 const storage = multer.diskStorage({
@@ -22,18 +25,18 @@ const fileFilter = (req, file, callback) => {
 }
 
 // в опциях - папка, в которой multer будет сохранять картинки, максимальный размер и так далее (сейчас макс 2мб)
-const multerUpload = multer({
+module.exports.multerUploadd = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {fileSize: 1024 * 1024 * 2}
 
 });
 
-exports.multerUpload = multerUpload;
 
 // Обработка base64 картинки
 module.exports.uploadImage = (req, res, next) => {
 
+    console.log("HERE in upload");
     if (req.body.photo) {
         let matches = req.body.photo.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
             response = {};
