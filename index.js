@@ -11,6 +11,7 @@ const {passportConfig} = require('./config/passportConfig');
 
 var itemController = require('./controllers/itemController');
 var userController = require('./controllers/userController');
+var collectionController = require('./controllers/collectionController');
 
 var app = express();
 // первый аргумент - чтоб сохранить /uploads в URL, второй - все внутри сделать доступным по ссылке (картинки)
@@ -25,9 +26,10 @@ app.use(passport.initialize());
 app.listen(process.env.PORT, () => console.log(`Server started at port : ${process.env.PORT}`));
 
 
-// '/items' - base URL for this controller
 app.use('/items', itemController);
+app.use('/collections', collectionController);
 app.use('/api', userController);
+
 
 
 // Error Handler должен быть в самом вконце, после всех подключений
