@@ -36,29 +36,31 @@ module.exports.multerUploadd = multer({
 // Обработка base64 картинки
 module.exports.uploadImage = (req, res, next) => {
 
-    console.log("HERE in upload");
     if (req.body.photo) {
-        let matches = req.body.photo.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
-            response = {};
 
-        if (matches.length !== 3) {
-            return new Error('Invalid input string');
+        let matches = req.body.photo.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        let response = {};
+
+        if (matches) {
+            if (matches.length !== 3) {
+                return new Error('Invalid input string');
+            }
+
+            response.type = matches[1];
+            response.data = Buffer.from(matches[2], 'base64');
+            let decodedImg = response;
+            let imageBuffer = decodedImg.data;
+            let type = decodedImg.type;
+            let extension = mime.getExtension(type);
+            let fileName = new Date().toISOString() + req._id + "image." + extension;
+            try {
+                fs.writeFileSync("./uploads/" + fileName, imageBuffer, 'utf8');
+
+            } catch (e) {
+                next(e);
+            }
+            req.body.photo = 'uploads/' + fileName;
         }
-
-        response.type = matches[1];
-        response.data = Buffer.from(matches[2], 'base64');
-        let decodedImg = response;
-        let imageBuffer = decodedImg.data;
-        let type = decodedImg.type;
-        let extension = mime.getExtension(type);
-        let fileName = new Date().toISOString() + req._id + "image." + extension;
-        try {
-            fs.writeFileSync("./uploads/" + fileName, imageBuffer, 'utf8');
-
-        } catch (e) {
-            next(e);
-        }
-        req.body.photo = 'uploads/' + fileName;
     }
 
 

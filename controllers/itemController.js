@@ -52,6 +52,21 @@ router.get('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
 });
 
 
+router.put('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
+    let itemList = req.query.ids ? req.query.ids.split(",") : [];
+    let filterParam = itemList.length ? { _id: { $in: itemList } } : {};
+
+    Item.updateMany(filterParam, {$set: {"washing": req.body.washing}}, (err, docs) => {
+        if (!err) {
+            response.send(docs);
+        } else {
+            console.log("Fuck! Error in Updating Laundry :" + JSON.stringify(err, undefined, 2));
+        }
+    });
+
+});
+
+
 router.get('/:id', (req, response) => {
     if (!ObjectId.isValid(req.params.id)) {
         return response.status(400).send(`No record with given id: ${req.params.id}`);
@@ -109,6 +124,7 @@ router.put('/:id', jwtHelper.verifyJwtToken, uploadHelper.uploadImage, (req, res
                 // if no error, file has been deleted successfully
                 console.log('File deleted!');
             });
+            console.log("updated file");
             response.send(doc);
         } else {
             console.log("Fuck! Error in Item PUT :" + JSON.stringify(err, undefined, 2));

@@ -93,12 +93,15 @@ router.delete('/:id', (req, response) => {
     }
 
     Collection.findByIdAndRemove(req.params.id, {useFindAndModify: false}, (err, doc) => {
-        if (!err && doc.photo.length) {
-            fs.unlink("./" + doc.photo, function (err) {
-                if (err) throw err;
-                // if no error, file has been deleted successfully
-                console.log('File deleted!');
-            });
+        if (!err) {
+            if (doc.photo.length) {
+                fs.unlink("./" + doc.photo, function (err) {
+                    if (err) throw err;
+                    // if no error, file has been deleted successfully
+                    console.log('File deleted!');
+                });
+            }
+
             response.send(doc);
         } else {
             console.log("Fuck! Error in Collection DELETE :" + JSON.stringify(err, undefined, 2));
