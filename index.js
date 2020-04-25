@@ -11,7 +11,7 @@ const {passportConfig} = require('./config/passportConfig');
 
 var itemController = require('./controllers/itemController');
 var userController = require('./controllers/userController');
-var collectionController = require('./controllers/collectionController');
+var outfitController = require('./controllers/outfitController');
 
 var app = express();
 // первый аргумент - чтоб сохранить /uploads в URL, второй - все внутри сделать доступным по ссылке (картинки)
@@ -27,7 +27,7 @@ app.listen(process.env.PORT, () => console.log(`Server started at port : ${proce
 
 
 app.use('/items', itemController);
-app.use('/collections', collectionController);
+app.use('/outfits', outfitController);
 app.use('/api', userController);
 
 
