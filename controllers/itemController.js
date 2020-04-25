@@ -51,6 +51,17 @@ router.get('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
     });
 });
 
+router.get('/type', jwtHelper.verifyJwtToken, (req, response) => {
+    let outfitType = req.query.type;
+
+    Item.find({'type': outfitType}, (err, docs) => {
+        if (!err) {
+            response.send(docs);
+        } else {
+            console.log("Fuck! Error in Retrieving Outfits by Type :" + JSON.stringify(err, undefined, 2));
+        }
+    });
+});
 
 router.put('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
     let itemList = req.query.ids ? req.query.ids.split(",") : [];

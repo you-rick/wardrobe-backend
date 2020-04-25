@@ -19,6 +19,7 @@ router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
     });
 });
 
+
 router.get('/:id', (req, response) => {
     if (!ObjectId.isValid(req.params.id)) {
         return response.status(400).send(`No record with given id: ${req.params.id}`);
