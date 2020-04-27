@@ -10,13 +10,24 @@ let {Outfit} = require('../models/outfit.model');
 
 
 router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
-    Outfit.find({'userId': req._id}, (err, docs) => {
-        if (!err) {
-            response.send(docs);
-        } else {
-            console.log("Fuck! Error in Retrieving Outfits :" + JSON.stringify(err, undefined, 2));
-        }
-    });
+    if (req.query.id) {
+         Outfit.find({'userId': req._id, 'items': req.query.id}, (err, docs) => {
+            if (!err) {
+                response.send(docs);
+            } else {
+                console.log("Fuck! Error in Retrieving Outfits by Item :" + JSON.stringify(err, undefined, 2));
+            }
+        });
+
+    } else {
+        Outfit.find({'userId': req._id}, (err, docs) => {
+            if (!err) {
+                response.send(docs);
+            } else {
+                console.log("Fuck! Error in Retrieving Outfits :" + JSON.stringify(err, undefined, 2));
+            }
+        });
+    }
 });
 
 
@@ -41,6 +52,7 @@ router.post('/', jwtHelper.verifyJwtToken, (req, response) => {
         type: req.body.type,
         weather: req.body.weather,
         items: req.body.items,
+        dates: req.body.dates || "",
         userId: req._id
     });
 
@@ -63,6 +75,7 @@ router.put('/:id', jwtHelper.verifyJwtToken, (req, response) => {  // /:id <- э
         type: req.body.type,
         weather: req.body.weather,
         items: req.body.items,
+        dates: req.body.dates || "",
         userId: req._id
     };
 

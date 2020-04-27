@@ -19,7 +19,7 @@ router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
         let ids = req.query.ids;
         let obj_ids = ids.split(',');
 
-        Item.find({_id: {$in: obj_ids}}, (err, docs) => {
+        Item.find({'userId': req._id, _id: {$in: obj_ids}}, (err, docs) => {
             if (!err) {
                 response.send(docs);
             } else {
@@ -42,7 +42,7 @@ router.get('/', jwtHelper.verifyJwtToken, (req, response) => {
 
 
 router.get('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
-    Item.find({'washing': true}, (err, docs) => {
+    Item.find({'userId': req._id, 'washing': true}, (err, docs) => {
         if (!err) {
             response.send(docs);
         } else {
@@ -54,7 +54,7 @@ router.get('/laundry', jwtHelper.verifyJwtToken, (req, response) => {
 router.get('/type', jwtHelper.verifyJwtToken, (req, response) => {
     let outfitType = req.query.type;
 
-    Item.find({'type': outfitType}, (err, docs) => {
+    Item.find({'userId': req._id, 'type': outfitType}, (err, docs) => {
         if (!err) {
             response.send(docs);
         } else {
