@@ -12,10 +12,14 @@ let userSchema = new mongoose.Schema({
         required: 'Email can not be empty',
         unique: true
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     password: {
         type: String,
         required: 'Password can not be empty',
-        minlength : [4, 'Password must be at least 4 character long']
+        minlength: [4, 'Password must be at least 4 character long']
     },
     saltSecret: String
 });
@@ -26,6 +30,7 @@ userSchema.path('email').validate((val) => {
     let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return emailRegex.test(val);
 }, 'Invalid e-mail.');
+
 
 // Предварительная проверка перед save
 userSchema.pre('save', function (next) {
@@ -39,19 +44,19 @@ userSchema.pre('save', function (next) {
 });
 
 
-// Методы
 // Проверяем если из формы логирования пришел верный пароль
 userSchema.methods.verifyPassword = (password, hash) => {
     return bcrypt.compareSync(password, hash);
 };
 
 userSchema.methods.generateJwt = (userId) => {
-    return jwt.sign({ "_id": userId},
+    return jwt.sign({"_id": userId},
         process.env.JWT_SECRET,
         {
             expiresIn: process.env.JWT_EXP
         });
 };
+
 
 let User = mongoose.model('User', userSchema);
 

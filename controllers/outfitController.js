@@ -52,7 +52,7 @@ router.post('/', jwtHelper.verifyJwtToken, (req, response) => {
         type: req.body.type,
         weather: req.body.weather,
         items: req.body.items,
-        dates: req.body.dates || "",
+        dates: req.body.dates,
         userId: req._id
     });
 
@@ -75,7 +75,7 @@ router.put('/:id', jwtHelper.verifyJwtToken, (req, response) => {  // /:id <- э
         type: req.body.type,
         weather: req.body.weather,
         items: req.body.items,
-        dates: req.body.dates || "",
+        dates: req.body.dates,
         userId: req._id
     };
 
