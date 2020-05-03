@@ -7,16 +7,13 @@ const sgTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
 const _ = require('lodash');
 
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 let router = express.Router();
 let {User} = require('../models/user.model');
 let {Token} = require('../models/token.model');
 
 
 router.post('/register', (req, res, next) => {
-    var user = new User({
+    let user = new User({
         fullName: req.body.fullName,
         email: req.body.email,
         password: req.body.password
@@ -31,7 +28,7 @@ router.post('/register', (req, res, next) => {
             // Save the verification token
             token.save(function (err) {
                 if (err) {
-                    return res.status(500).send({msg: err.message});
+                    return res.status(500).json({message: err.message});
                 }
 
                 let options = {
@@ -41,20 +38,19 @@ router.post('/register', (req, res, next) => {
                     }
                 };
 
-                let client = nodemailer.createTransport(sgTransport(options));
+                let transporter = nodemailer.createTransport(sgTransport(options));
                 let email = {
-                    from: 'fanat-classik@mail.ru',
+                    from: 'info@frontend-developer.ru',
                     to: user.email,
-                    subject: 'Hello',
-                    text: 'Hello world',
-                    html: '<b>Hello world</b>'
+                    subject: 'Wardrobe Online. Account Verification',
+                    html: '<p>Hello,\n\n' + 'Please verify your account by clicking <a href="http:\/\/localhost:4200\/email-confirmation\/' + token.token + '">This link</a></p>'
                 };
 
-                client.sendMail(email, function (err, info) {
+                transporter.sendMail(email, err => {
                     if (err) {
                         console.log("FUCK!", err);
                     } else {
-                        console.log('Message sent!');
+                        res.status(200).json({message: 'A verification email has been sent to ' + user.email + '.'});
                     }
                 });
             });
@@ -62,7 +58,7 @@ router.post('/register', (req, res, next) => {
 
         } else {
             if (err.code === 11000) {
-                res.status(422).send(['Duplicate email adrress found.']);
+                res.status(422).json({message: 'Duplicate email address found.'});
             } else {
                 return next(err);
             }
@@ -70,6 +66,33 @@ router.post('/register', (req, res, next) => {
     });
 });
 
+router.post('/email-confirmation', (req, res) => {
+    let userToken = req.body.token;
+
+    if (!userToken) return res.status(400).json({
+        message: 'Token was not provided'
+    });
+
+    Token.findOne({token: userToken}, (err, token) => {
+        if (!token) return res.status(400).send({message: 'We were unable to find a valid token. Your token can have expired.'});
+
+        User.findOne({_id: token._userId}, (err, user) => {
+            if (!user) return res.status(400).send({message: 'We were unable to find a user for this token.'});
+            if (user.isVerified) return res.status(400).json({message: 'This user has already been verified.'});
+
+            // Verify and save the user
+            user.isVerified = true;
+            user.save(function (err, docs) {
+                if (!err) {
+                    res.status(200).send(_.pick(user, ['fullName', 'email', 'isVerified']));
+                } else {
+                    res.status(500).json({message: err.message});
+                }
+
+            });
+        });
+    });
+});
 
 router.post('/authenticate', (req, res, next) => {
     // call for passport authentication
@@ -77,6 +100,8 @@ router.post('/authenticate', (req, res, next) => {
         if (err) {
             return res.status(400).json(err);
         } else if (user) {
+            if (!user.isVerified) return res.status(400).json({message: 'Email is not verified'});
+
             return res.status(200).json({'token': user.generateJwt(user._id)});
         }
         // unknown user or wrong password
@@ -91,7 +116,7 @@ router.get('/user-profile', jwtHelper.verifyJwtToken, (req, res, next) => {
         if (!user) {
             return res.status(404).json({status: false, message: 'User record not found'});
         } else if (!user.isVerified) {
-            return res.send({message: 'Email is not verified'});
+            return res.json({message: 'Email is not verified'});
         } else {
             // Чтоб не отдавать все данные о пользователе, то есть пароль и салт, используем
             // Lodash как фильтр
