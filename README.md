@@ -6,6 +6,6 @@ Items, Outfits, Laundry
 
 Features:
 
-1) Items REST
+1) Items REST, including Image handler
 2) Outfits REST
 3) Auth - Sign In, Sign Up, Confirm Registration with email
