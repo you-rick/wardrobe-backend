@@ -5,8 +5,8 @@
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "48h",
         "SENDGRID_USERNAME": "wardrobe-app",
-        "SENDGRID_PASSWORD": "jopa1234!jopa",
-        "SENDGRID_API_KEY": "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"
+        "SENDGRID_PASSWORD": "XXXXXXX",
+        "SENDGRID_API_KEY": "SG.IiTVYN-9TzSBNoW5PQWjxg.wLCjdkF7jUWDk0WAS"
     },
     "production": {
         "PORT": 80,
@@ -14,7 +14,7 @@
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "48h",
         "SENDGRID_USERNAME": "wardrobe-app",
-        "SENDGRID_PASSWORD": "jopa1234!jopa",
-        "SENDGRID_API_KEY": "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"
+        "SENDGRID_PASSWORD": "XXXXXXX",
+        "SENDGRID_API_KEY": "SG.IiTVYN-9TzSBNoW5PQWjxg.wLCjdkF7jUWDk0"
     }
 }
